@@ -18,7 +18,7 @@ CREATE TABLE bronze.crm_cust_info(
 	[cst_key] [nvarchar](50) NULL,
 	[cst_firstname] [nvarchar](50) NULL,
 	[cst_lastname] [nvarchar](50) NULL,
-	[cst_material_status] [nvarchar](50) NULL,
+	[cst_marital_status] [nvarchar](50) NULL,
 	[cst_gndr] [nvarchar](50) NULL,
 	[cst_create_date] [date] NULL
 );
