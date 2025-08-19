@@ -60,6 +60,88 @@ Usage Example:
       ☠️ Cette operation doit etre executé si il y'a une incoherence au
           des dates dans la data, ou les dates ne match pas
 
+4- Au niveau de la Table silver.crm_sales_details, nous avons procedé aux transformations suivantes:
+		
+	On a eu à faire des transformations suivantes
+
+	1️⃣ * Normalisation: Nous avons normaliser la date dans les colonnes
+		(sls_order_dt, sls_ship_dt, sls_due_dt) en disant si la valeur dans
+		dans les colonnes valent 0 ou si la longuer des valeurs est differentes
+		de 8 caracteres; alors nous aurons NULL (Valeur manquante)
+							>>> voir indince A
+
+		* Convertion & Transformation: Pour les valeurs valides (8) caracters;
+		Nous avons en premier temps convertis les valeurs INT dans les colonnes
+		(sls_order_dt, sls_ship_dt, sls_due_dt) en VARCHAR, ensuite nous les avons
+		transformées en format DATE  >>> voir indice B
+
+	Le Script:
+			CASE 
+				WHEN sls_order_dt = 0 OR LEN(sls_order_dt) != 8 THEN NULL >>> Indice A
+				ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE) >>> Indice B
+			END AS sls_order_dt,
+			CASE 
+				WHEN sls_ship_dt = 0 OR LEN(sls_ship_dt) != 8 THEN NULL
+				ELSE CAST(CAST(sls_ship_dt AS VARCHAR) AS DATE)
+			END AS sls_ship_dt,
+			CASE 
+				WHEN sls_due_dt = 0 OR LEN(sls_due_dt) != 8 THEN NULL
+				ELSE CAST(CAST(sls_due_dt AS VARCHAR) AS DATE)
+			END AS sls_due_dt,
+
+
+	2️⃣* Transformation: Correction du montant de ventes
+		
+		En utilisant une règle en Business qui dit: Σ sales= Quantity x Price. Et que
+		toute la quantité des ventes (sales quantity) et les info des Prix doivent être
+		des nombres positifs: ❌ Negative, zeros, NULL are Not Allowed !
+
+		Nous avons procedé de la maniere suivante dans ces colonnes:
+
+		⭐️Cas de la colonne sls_sales:
+
+			La logique:
+				si sls_sales est NULL (manquant) ou
+				si sls_sales est <= 0 (invilide) ou
+				si sls_sales ne correspond pas à la formule Quantité x Prix (incoherent)
+
+			Alors nous aurons: 
+				Qunad une des conditions est vraie --> Calcule du montant correct avec
+					sls_quantity x ABS(sls_price).
+				>>> ABS(sls_sales)  ici garantit un prix positif (même si la valeur originale
+					étais négative)
+
+			Ensuite conservation de la valeur originale:
+				Si aucune condition n'est vraie --> On garde la valeur existante de sls_sales
+
+Le Script:
+		CASE 
+		    WHEN sls_sales IS NULL OR sls_sales <= 0 OR sls_sales != sls_quantity * ABS(sls_price) 
+		        THEN sls_quantity * ABS(sls_price)
+		    ELSE sls_sales
+		END AS sls_sales
+
+
+		⭐️Cas decla colonne sls_price: Correction du prix unitaire
+
+			La logique:
+				Conditions pour recalculer :
+					Si sls_price est NULL ou
+					Si sls_price est ≤ 0 (invalide)
+				
+				Recalcul :
+					Calcule le prix avec sls_sales / sls_quantity
+					NULLIF(sls_quantity, 0) évite une division par 0 (retourne NULL si quantité=0)
+				
+				Conservation de la valeur originale :
+					Si le prix est valide (>0) → Garde la valeur existante
+
+Le Script:	
+		CASE 
+		    WHEN sls_price IS NULL OR sls_price <= 0 
+		        THEN sls_sales / NULLIF(sls_quantity, 0)
+		    ELSE sls_price
+		END AS sls_price
 ===============================================================================
 */
 
@@ -178,7 +260,7 @@ BEGIN
 			sls_cust_id,
 			CASE 
 				WHEN sls_order_dt = 0 OR LEN(sls_order_dt) != 8 THEN NULL
-				ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE)
+				ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE) 
 			END AS sls_order_dt,
 			CASE 
 				WHEN sls_ship_dt = 0 OR LEN(sls_ship_dt) != 8 THEN NULL
@@ -247,7 +329,7 @@ BEGIN
 			cntry
 		)
 		SELECT
-			REPLACE(cid, '-', '') AS cid, 
+			REPLACE(cid, '-', '') AS cid, -- Gerer les valeurs invalides en remplaçant '-' par rien ' ' dans la colonne cid
 			CASE
 				WHEN TRIM(cntry) = 'DE' THEN 'Germany'
 				WHEN TRIM(cntry) IN ('US', 'USA') THEN 'United States'
