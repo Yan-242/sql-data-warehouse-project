@@ -10,6 +10,8 @@
 =======================================================================================
   Stored Procedur: Load Bronze Layer (Source -> Bronze)
 =======================================================================================
+
+🇬🇧ENGLISH
 Sript Purpose:
     This  stored procedure loads data into the 'bronze' schema from external CSV files.
     It performs the following actions:
@@ -22,6 +24,22 @@ Parameters:
 
 Usage Example:
     EXEC bronze.load_bronze;
+
+
+🇫🇷FRANÇAIS
+But de la sript :
+
+    Cette procédure stockée charge les données dans le schéma "bronze" à partir de fichiers CSV externes.
+    Il effectue les actions suivantes:
+    - Truce les tables de bronze avant de charger les données.
+    - Utilise la commande 'BULK INSERT' pour charger les données des fichiers CSV dans les tableaux de bronze.
+
+Paramètres :
+    Aucun.
+        Cette procédure stockée n'accepte aucun paramètre ni ne renvoie aucune valeur.
+
+Exemple d'utilisation :
+    EXEC bronze.load_bronze ;
 =======================================================================================
 */
 
