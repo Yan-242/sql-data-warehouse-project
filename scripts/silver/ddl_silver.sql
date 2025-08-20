@@ -2,10 +2,18 @@
 ===============================================================================
 DDL Script: Create Silver Tables
 ===============================================================================
+
+🇬🇧 ENGLISH:
 Script Purpose:
     This script creates tables in the 'silver' schema, dropping existing tables 
     if they already exist.
 	  Run this script to re-define the DDL structure of 'silver' Tables
+
+🇫🇷 FRANÇAIS:
+Objectif du script :
+	Ce script crée des tables dans le schéma « argenté », laissant tomber les tables existantes
+	S'ils existent déjà.
+	Exécutez ce script pour redéfinir la structure DDL des tables « argent »
 ===============================================================================
 */
 
