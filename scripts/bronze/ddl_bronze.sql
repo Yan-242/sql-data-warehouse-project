@@ -15,7 +15,7 @@ Script purpose:
 Objectif du script :
 
 	En exécutant ce script, il créera des tableaux dans le « bronze »
-	Schéma, en laissant tomber les tables existantes si elles existent déjà.
+	Schéma, en supprimant les tables existantes si elles existent déjà.
 Exécutez ce script pour redéfinir la structure DDL des tables « bronze »
 
 =======================================================================
